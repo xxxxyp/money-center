@@ -3,7 +3,7 @@ package com.fourboy.controller;
 import com.fourboy.bean.UserInfo;
 import com.fourboy.bean.res.BaseObj;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -14,15 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
 
 
-    @PostMapping("/user/login")
+    @GetMapping("/login")
     public BaseObj<UserInfo> login(){
         log.info("");
         BaseObj<UserInfo> result = new BaseObj<>();
-        UserInfo userInfo = new UserInfo();
-        userInfo.setUserId("001");
-        userInfo.setUserName("Don");
-        userInfo.setPwd("123");
-        result.setData(userInfo);
+        result.setMessage("尚未登陆，请登录！");
         return result;
     }
 }

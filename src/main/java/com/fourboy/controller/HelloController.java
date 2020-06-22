@@ -10,12 +10,6 @@ import java.util.Map;
 @Controller
 public class HelloController {
 
-
-    @RequestMapping("/index")
-    public String getIndex(){
-        return "index";
-    }
-
     @RequestMapping("/subject")
     @ResponseBody
     public Map getInfo(){
