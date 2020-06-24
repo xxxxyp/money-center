@@ -2,6 +2,7 @@ package com.fourboy.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fourboy.bean.res.BaseObj;
+import com.fourboy.filter.CustomerAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import javax.servlet.ServletException;
@@ -54,30 +56,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin()
                 .loginProcessingUrl("/doLogin")
-                .successHandler(new AuthenticationSuccessHandler() {
-                    @Override
-                    public void onAuthenticationSuccess(HttpServletRequest req, HttpServletResponse resp, Authentication auth) throws IOException, ServletException {
-                        BaseObj<Object> baseObj = new BaseObj<>();
-                        baseObj.setMessage("登陆成功" + auth.getPrincipal());
-                        resp.setContentType("application/json;charset=utf-8");
-                        PrintWriter out = resp.getWriter();
-                        out.write(new ObjectMapper().writeValueAsString(baseObj));
-                        out.flush();
-                        out.close();
-                    }
-                })
-                .failureHandler(new AuthenticationFailureHandler() {
-                    @Override
-                    public void onAuthenticationFailure(HttpServletRequest req, HttpServletResponse resp, AuthenticationException e) throws IOException, ServletException {
-                        BaseObj<Object> baseObj = new BaseObj<>();
-                        baseObj.setMessage("登陆失败" );
-                        resp.setContentType("application/json;charset=utf-8");
-                        PrintWriter out = resp.getWriter();
-                        out.write(new ObjectMapper().writeValueAsString(baseObj));
-                        out.flush();
-                        out.close();
-                    }
-                })
                 .loginPage("/login")
                 .permitAll()
                 .and()
@@ -112,8 +90,41 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         out.close();
                     }
                 });
+        http.addFilterAt(customerAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
+
+
+    @Bean
+    CustomerAuthenticationFilter customerAuthenticationFilter() throws Exception{
+        final CustomerAuthenticationFilter filter = new CustomerAuthenticationFilter();
+        filter.setAuthenticationSuccessHandler(new AuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest req, HttpServletResponse resp, Authentication auth) throws IOException, ServletException {
+                BaseObj<Object> baseObj = new BaseObj<>();
+                baseObj.setMessage("登陆成功" + auth.getPrincipal());
+                resp.setContentType("application/json;charset=utf-8");
+                PrintWriter out = resp.getWriter();
+                out.write(new ObjectMapper().writeValueAsString(baseObj));
+                out.flush();
+                out.close();
+            }
+        });
+        filter.setAuthenticationFailureHandler(new AuthenticationFailureHandler() {
+            @Override
+            public void onAuthenticationFailure(HttpServletRequest req, HttpServletResponse resp, AuthenticationException e) throws IOException, ServletException {
+                BaseObj<Object> baseObj = new BaseObj<>();
+                baseObj.setMessage("登陆失败" );
+                resp.setContentType("application/json;charset=utf-8");
+                PrintWriter out = resp.getWriter();
+                out.write(new ObjectMapper().writeValueAsString(baseObj));
+                out.flush();
+                out.close();
+            }
+        });
+        filter.setAuthenticationManager(authenticationManager());
+        return filter;
+    }
 
     /**
      * 密码加密方式，采用BCryptPasswordEncoder
