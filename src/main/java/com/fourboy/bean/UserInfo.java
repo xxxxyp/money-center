@@ -8,5 +8,6 @@ public class UserInfo {
     private String userName;
     private String userId;
     private String pwd;
+    private String sex;
 
 }
