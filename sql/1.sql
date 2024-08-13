@@ -1,4 +1,4 @@
---
+  --
 SELECT marriage,dealCount,concat(round(dealCount / total * 100.00, 2), '%') dealPercent
         FROM(
         select * FROM
